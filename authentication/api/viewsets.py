@@ -11,6 +11,18 @@ from . import minimal_serializers
 from ..utils.clean_data import clean_array_params
 
 
+class InstituteViewset(BaseModelViewset):
+    queryset = models.Institute.objects.filter()
+    serializer_class = serializers.InstituteSerializer
+    minimal_serializer_class = minimal_serializers.InstituteMinimalSerializer
+
+
+class BranchViewset(BaseModelViewset):
+    queryset = models.Branch.objects.filter()
+    serializer_class = serializers.BranchSerializer
+    minimal_serializer_class = minimal_serializers.BranchMinimalSerializer
+
+
 class UserViewset(BaseModelViewset):
     queryset = models.User.objects.filter()
     serializer_class = serializers.UserSerializer

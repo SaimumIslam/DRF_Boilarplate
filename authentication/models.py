@@ -26,7 +26,7 @@ class Branch(base_models.BaseModel):
     email = models.EmailField()
     mobile = models.CharField(max_length=25)
     address = models.TextField(null=True, blank=True)
-    timezone = models.CharField(max_length=50, choices=timezone.TIMEZONE_CHOICES)
+    timezone = models.CharField(max_length=50, choices=timezone.TIMEZONE_CHOICES, default=settings.TIME_ZONE)
 
     class Meta:
         indexes = [
@@ -74,7 +74,7 @@ class Profile(base_models.BaseModel):
     mobile = models.CharField(max_length=25, null=True, blank=True)
     address = models.TextField(null=True, blank=True)
     photo = models.URLField(null=True, blank=True)
-    timezone = models.CharField(max_length=50, choices=timezone.TIMEZONE_CHOICES)
+    timezone = models.CharField(max_length=50, choices=timezone.TIMEZONE_CHOICES, default=settings.TIME_ZONE)
     last_activity_at = models.DateTimeField(auto_now=True)
 
     class Meta:

@@ -15,8 +15,10 @@ class BaseModelViewset(viewsets.ModelViewSet):
 
     def get_serializer_class(self):
         query_params = self.request.query_params
+
         if query_params.get("minimal") == '1':
-            # assert self.minimal_serializer_class is not None, f"{self.__class__.__name__} should include a `minimal_serializer_class` attribute"
+            if self.minimal_serializer_class is None:
+                raise AttributeError("Minimal serializer is not implemented yet.")
             return self.minimal_serializer_class or super().get_serializer_class()
 
         return super().get_serializer_class()
