@@ -1,10 +1,18 @@
 from rest_framework import viewsets
 
+from ..mixins.utility import UtilityMixin
 
-class BaseModelViewset(viewsets.ModelViewSet):
+
+class BaseModelViewset(UtilityMixin, viewsets.ModelViewSet):
     minimal_serializer_class = None
 
     def get_queryset(self):
+        model = super().get_queryset().model
+        model_fields = [field.name for field in model._meta.get_fields()]
+
+        order_by = self.request.query_params.get("order_by")
+        if order_by in model_fields:
+            return super().get_queryset().order_by(order_by)
         return super().get_queryset()
 
     def perform_create(self, serializer):
@@ -25,10 +33,10 @@ class BaseModelViewset(viewsets.ModelViewSet):
 
     def get_serializer_context(self):
         raw_detail_fields = self.request.query_params.get("detail_fields", "").split(",")
-        detail_fields = [field.strip() for field in raw_detail_fields if field.strip()]
+        detail_fields = self.clean_array_params(raw_detail_fields)
 
         raw_extra_fields = self.request.query_params.get("extra_fields", "").split(",")
-        extra_fields = [field.strip() for field in raw_extra_fields if field.strip()]
+        extra_fields = self.clean_array_params(raw_extra_fields)
 
         context = {
             **super().get_serializer_context(),
