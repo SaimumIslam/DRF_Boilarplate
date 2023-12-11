@@ -2,7 +2,7 @@ from django.db.models import Q, Value
 from django.db.models.functions import Concat
 
 from base.api.viewsets import BaseModelViewset
-from authentication.core.permissions import HasApiPermissions, IsAdmins
+from authentication.core.permissions import HasApiPermissions, IsSuperAdmin, IsInstituteAdmin, IsAdmins
 
 from .. import models
 from . import serializers
@@ -14,13 +14,20 @@ class InstituteViewset(BaseModelViewset):
     serializer_class = serializers.InstituteSerializer
     minimal_serializer_class = minimal_serializers.InstituteMinimalSerializer
 
-    permission_classes = [IsAdmins, HasApiPermissions]  # and operation
+    permission_classes = [IsSuperAdmin | IsInstituteAdmin]  # or operation
 
 
 class BranchViewset(BaseModelViewset):
     queryset = models.Branch.objects.filter()
     serializer_class = serializers.BranchSerializer
     minimal_serializer_class = minimal_serializers.BranchMinimalSerializer
+
+    def get_permissions(self):
+        if self.action == 'list' or self.action == 'retrieve':
+            permission_classes = [IsAdmins]
+        else:
+            permission_classes = [IsAdmins, HasApiPermissions]  # and operation
+        return [permission() for permission in permission_classes]
 
 
 class UserViewset(BaseModelViewset):
