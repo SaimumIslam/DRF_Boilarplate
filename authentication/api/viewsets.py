@@ -2,6 +2,7 @@ from django.db.models import Q, Value
 from django.db.models.functions import Concat
 
 from base.api.viewsets import BaseModelViewset
+from authentication.core.permissions import HasApiPermissions, IsAdmins
 
 from .. import models
 from . import serializers
@@ -12,6 +13,8 @@ class InstituteViewset(BaseModelViewset):
     queryset = models.Institute.objects.filter()
     serializer_class = serializers.InstituteSerializer
     minimal_serializer_class = minimal_serializers.InstituteMinimalSerializer
+
+    permission_classes = [IsAdmins, HasApiPermissions]  # and operation
 
 
 class BranchViewset(BaseModelViewset):

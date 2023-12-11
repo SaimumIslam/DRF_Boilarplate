@@ -1,5 +1,6 @@
-from ua_parser import user_agent_parser
 from django.db import models
+
+from ua_parser import user_agent_parser
 
 
 class TokenQuerySet(models.QuerySet):

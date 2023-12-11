@@ -6,4 +6,3 @@ admin.site.register(Institute)
 admin.site.register(Profile)
 admin.site.register(Branch)
 admin.site.register(User)
-

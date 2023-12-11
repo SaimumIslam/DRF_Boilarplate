@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from authentication.api.minimal_serializers import UserMinimalSerializer
 
 

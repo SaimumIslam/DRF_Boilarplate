@@ -2,6 +2,7 @@ from django.db.models import Q, Value, F
 from django.db.models.functions import Concat
 
 from base.repositories.base import BaseRepository
+
 from ..models import User
 
 

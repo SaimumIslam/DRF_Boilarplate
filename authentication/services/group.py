@@ -10,5 +10,8 @@ class GroupService(BaseService):
     def post_migration_create(self):
         self.repository.post_migration_create()
 
-    def add_to_group_by_group_name__user(self, user, group_name):
-        self.repository.add_to_group_by_group_name__user(user, group_name)
+    def add_user_by_group_name__user(self, group_name, user):
+        self.repository.add_user_by_group_name__user(group_name, user)
+
+    def add_permission_by_group_name(self, permission, group_name):
+        self.repository.add_permission_by_group_name(permission, group_name)

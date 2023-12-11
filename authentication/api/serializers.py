@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from base.api.serializers import BaseModelSerializer
 
 from .minimal_serializers import InstituteMinimalSerializer, BranchMinimalSerializer

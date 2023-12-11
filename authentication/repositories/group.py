@@ -13,10 +13,11 @@ class GroupRepository(BaseRepository):
             return group.user_set.filter(id=user.id).exists()
         return False
 
-    def add_to_group_by_group_name__user(self, group_name, user):
-        group = self.get_by_attr(name=group_name)
-        if group:
-            group.user_set.add(user)
+    def add_permission_by_group_name(self, user, group_name,):
+        instance = self.get_by_attr(name=group_name)
+        if instance:
+            instance.user_set.add(user)
+
 
     def get_all_names(self):
         return self.queryset.values_list("name", flat=True)
