@@ -2,7 +2,7 @@ import os
 import binascii
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, ContentType, Permission, Group
 
 from base import models as base_models
 

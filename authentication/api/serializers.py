@@ -1,9 +1,10 @@
 from rest_framework import serializers
+from django.contrib.auth.models import ContentType
 
 from base.api.serializers import BaseModelSerializer
 
 from .minimal_serializers import InstituteMinimalSerializer, BranchMinimalSerializer
-from ..models import User, Institute, Branch, Profile
+from ..models import User, Institute, Branch, Profile, Group, Permission
 
 from ..services.user import UserService
 
@@ -46,7 +47,6 @@ class UserSerializer(BaseModelSerializer):
     def to_representation(self, instance):
         response_data = super().to_representation(instance)
         response_data["full_name"] = instance.get_full_name()
-        response_data["role_display"] = instance.get_role_display()
 
         detail_fields = self.context.get("detail_fields", [])
 
@@ -74,6 +74,56 @@ class ProfileSerializer(BaseModelSerializer):
         return response_data
 
 
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ["id", "name"]
+
+    def to_representation(self, instance):
+        response_data = super().to_representation(instance)
+        detail_fields = self.context.get("detail_fields", [])
+
+        if "permissions" in detail_fields:
+            response_data["permissions"] = PermissionSerializer(instance.permissions, many=True).data
+
+        return response_data
+
+
+class PermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        exclude = ["name"]
+
+    def to_representation(self, instance):
+        response_data = super().to_representation(instance)
+        detail_fields = self.context.get("detail_fields", [])
+
+        if "content_type" in detail_fields:
+            response_data["content_type"] = ContentTypeSerializer(instance.content_type).data
+
+        return response_data
+
+
+class ContentTypeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ContentType
+        fields = "__all__"
+
+
+# only validation_serializer
+
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
+
+class UserPermissionSerializer(serializers.Serializer):
+    user = serializers.IntegerField()
+    permission = serializers.IntegerField()
+
+class UserGroupSerializer(serializers.Serializer):
+    user = serializers.IntegerField()
+    group = serializers.IntegerField()
+
+class GroupPermissionSerializer(serializers.Serializer):
+    group = serializers.IntegerField()
+    permission = serializers.IntegerField()

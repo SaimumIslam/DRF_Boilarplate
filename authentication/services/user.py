@@ -14,3 +14,15 @@ class UserService(BaseService):
 
     def get_item_by_email(self, email):
         return self.repository.get_by_email(email)
+
+    def add_permission_by_permission__user_id(self, permission, user_id):
+        self.repository.add_permission_by_permission__user_id(permission, user_id)
+
+    def remove_permission_by_permission__user_id(self, permission, user_id):
+        self.repository.remove_permission_by_permission__user_id(permission, user_id)
+
+    def add_group_by_group__user_id(self, group, user_id):
+        self.repository.add_group_by_group__user_id(group, user_id)
+
+    def remove_group_by_group__user_id(self, group, user_id):
+        self.repository.remove_group_by_group__user_id(group, user_id)

@@ -13,3 +13,23 @@ class UserRepository(BaseRepository):
 
     def get_by_email(self, email):
         return self.queryset.filter(email=email).first()
+
+    def add_permission_by_permission__user_id(self, permission, user_id):
+        instance = self.get_by_attr(pk=user_id)
+        if instance:
+            instance.user_permissions.add(permission)
+
+    def remove_permission_by_permission__user_id(self, permission, user_id):
+        instance = self.get_by_attr(pk=user_id)
+        if instance:
+            instance.user_permissions.remove(permission)
+
+    def add_group_by_group__user_id(self, group, user_id):
+        instance = self.get_by_attr(pk=user_id)
+        if instance:
+            instance.groups.add(group)
+
+    def remove_group_by_group__user_id(self, group, user_id):
+        instance = self.get_by_attr(pk=user_id)
+        if instance:
+            instance.groups.remove(group)

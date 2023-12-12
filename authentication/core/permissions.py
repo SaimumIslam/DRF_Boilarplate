@@ -116,6 +116,6 @@ class HasApiPermissions(permissions.BasePermission):
         queryset = self._queryset(view)
         codename = self._get_permission_codename(request.method, queryset.model)
 
-        has_permission = self.permission_service.has_permissions_by_user__codename(request.user, codename)
+        has_permission = self.permission_service.has_all_including_group_permissions_by_user__codename(request.user, codename)
 
         return has_permission

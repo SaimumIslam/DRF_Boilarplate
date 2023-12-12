@@ -14,6 +14,12 @@ class AttributeNotFound(APIException):
     default_code = 'attribute_not_found'
 
 
+class Unprocessable(APIException):
+    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+    default_detail = _('Entity not processable.')
+    default_code = 'un_processable'
+
+
 class Conflicted(APIException):
     status_code = status.HTTP_409_CONFLICT
     default_detail = _('Conflicts with existing entry.')
