@@ -18,7 +18,7 @@ class InstituteSerializer(BaseModelSerializer):
 class BranchSerializer(BaseModelSerializer):
     class Meta:
         model = Branch
-        fields = ["id", "name", "email", "mobile", "address", "timezone"]
+        fields = ["id", "name", "email", "mobile", "address", "timezone", "institute"]
 
     def to_representation(self, instance):
         response_data = super().to_representation(instance)
@@ -35,14 +35,7 @@ class UserSerializer(BaseModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "first_name", "last_name", "email", "role", "last_login"]
-
-    def validate_branch(self, value):
-        user = self.context["user"]
-        if not user.is_superuser and user.branch != value:
-            return serializers.ValidationError("Please provide branch")
-
-        return value
+        fields = ["id", "first_name", "last_name", "email", "role", "last_login", "branch"]
 
     def to_representation(self, instance):
         response_data = super().to_representation(instance)
@@ -62,7 +55,7 @@ class UserSerializer(BaseModelSerializer):
 class ProfileSerializer(BaseModelSerializer):
     class Meta:
         model = Profile
-        fields = ["id", "mobile", "address", "student_id", "photo", "timezone", "last_activity_at"]
+        fields = ["id", "mobile", "address", "student_id", "photo", "timezone", "last_activity_at", "user"]
 
     def to_representation(self, instance):
         response_data = super().to_representation(instance)
@@ -116,13 +109,16 @@ class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField()
 
+
 class UserPermissionSerializer(serializers.Serializer):
     user = serializers.IntegerField()
     permission = serializers.IntegerField()
 
+
 class UserGroupSerializer(serializers.Serializer):
     user = serializers.IntegerField()
     group = serializers.IntegerField()
+
 
 class GroupPermissionSerializer(serializers.Serializer):
     group = serializers.IntegerField()

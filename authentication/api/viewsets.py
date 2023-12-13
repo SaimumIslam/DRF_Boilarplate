@@ -60,7 +60,7 @@ class UserViewset(BaseModelViewset):
 
 
 class ProfileViewset(BaseModelViewset):
-    queryset = models.Profile.objects.filter()
+    queryset = models.Profile.objects.all()
     serializer_class = serializers.ProfileSerializer
     minimal_serializer_class = minimal_serializers.ProfileMinimalSerializer
 

@@ -1,4 +1,5 @@
 from django.db import models
+from .fields import PhoneNumberField
 
 
 # Create your models here.

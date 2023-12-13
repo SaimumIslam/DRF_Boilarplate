@@ -98,6 +98,9 @@ def list_permissions(request):
     if query_params.get("codename"):
         filters["codename"] = query_params["codename"]
 
+    if query_params.get("content_type"):
+        filters["content_type"] = query_params["content_type"]
+
     permissions = permission_service.filter(**filters)
 
     detail_fields = query_params.get("detail_fields", "")

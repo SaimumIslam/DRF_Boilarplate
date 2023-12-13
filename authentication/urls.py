@@ -9,7 +9,7 @@ urlpatterns = [
     path("logout/", views.logout, name="logout"),
     path('groups/', views.list_groups, name='list_groups'),
     path('permissions/', views.list_permissions, name='list_permissions'),
-    path('content_types/', views.list_content_types, name='list_content_types'),
+    path('content-types/', views.list_content_types, name='list_content_types'),
     path('user-groups/', views.UserGroupAPIView.as_view(),
          name='user_group_api_view'),
     path('user-permissions/', views.UserPermissionAPIView.as_view(),

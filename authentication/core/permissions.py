@@ -2,79 +2,88 @@ from rest_framework import permissions
 
 from ..utils.role import ADMIN_ROLES, EMPLOYEE_ROLES
 from ..services.permission import PermissionService
+from ..utils.decorators import default_permission
 
 
 class IsSuperAdmin(permissions.BasePermission):
+    @default_permission
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == "SA"
+        return request.user.is_superuser
 
 
 class IsInstituteAdmin(permissions.BasePermission):
+    @default_permission
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == "IA"
+        return request.user.role == "IA"
 
 
 class IsBranchAdmin(permissions.BasePermission):
+    @default_permission
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == "BA"
+        return request.user.role == "BA"
+
+
+class IsStaffAdmin(permissions.BasePermission):
+    @default_permission
+    def has_permission(self, request, view):
+        return request.user.role == "SA"
 
 
 class IsTeacher(permissions.BasePermission):
+    @default_permission
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == "TC"
+        return request.user.role == "TC"
 
 
 class IsStaff(permissions.BasePermission):
+    @default_permission
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == "SF"
+        return request.user.role == "SF"
 
 
 class IsAgent(permissions.BasePermission):
+    @default_permission
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == "AG"
+        return request.user.role == "AG"
 
 
 class IsStudent(permissions.BasePermission):
+    @default_permission
     def has_permission(self, request, view):
-        return request.user.is_authenticated and request.user.role == "ST"
+        return request.user.role == "ST"
 
 
 class IsAdmins(permissions.BasePermission):
+    @default_permission
     def has_permission(self, request, view):
-        if not request.user.is_authenticated:
-            return False
         return request.user.role in ADMIN_ROLES
 
 
 class IsEmployee(permissions.BasePermission):
+    @default_permission
     def has_permission(self, request, view):
-        if not request.user.is_authenticated:
-            return False
         return request.user.role in EMPLOYEE_ROLES
 
 
 class IsAdminsOrReadOnly(permissions.BasePermission):
+    @default_permission
     def has_permission(self, request, view):
-        if not request.user.is_authenticated:
-            return False
         if request.method in permissions.SAFE_METHODS:
             return True
         return request.user.role in ADMIN_ROLES
 
 
 class IsEmployeeOrReadOnly(permissions.BasePermission):
+    @default_permission
     def has_permission(self, request, view):
-        if not request.user.is_authenticated:
-            return False
         if request.method in permissions.SAFE_METHODS:
             return True
         return request.user.role in EMPLOYEE_ROLES
 
 
 class IsAdminOrAuthorOrReadOnly(permissions.BasePermission):
+    @default_permission
     def has_object_permission(self, request, view, instance):
-        if not request.user.is_authenticated:
-            return False
         if request.method in permissions.SAFE_METHODS:
             return True
         return instance.created_by == request.user
@@ -106,16 +115,15 @@ class HasApiPermissions(permissions.BasePermission):
             return view.get_queryset()
         return view.queryset
 
+    @default_permission
     def has_permission(self, request, view):
-        if not request.user.is_authenticated:
-            return False
-
         if getattr(view, '_ignore_model_permissions', False):
             return True
 
         queryset = self._queryset(view)
         codename = self._get_permission_codename(request.method, queryset.model)
 
-        has_permission = self.permission_service.has_all_including_group_permissions_by_user__codename(request.user, codename)
+        has_permission = self.permission_service.has_all_including_group_permissions_by_user__codename(request.user,
+                                                                                                       codename)
 
         return has_permission

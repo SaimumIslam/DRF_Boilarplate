@@ -13,7 +13,7 @@ from .core.managers import UserManager, TokenManager
 class Institute(base_models.BaseModel):
     name = models.CharField(max_length=200, unique=True)
     email = models.EmailField()
-    mobile = models.CharField(max_length=25)
+    mobile = base_models.PhoneNumberField()
     address = models.TextField(null=True, blank=True)
 
     def __str__(self):
@@ -24,7 +24,7 @@ class Branch(base_models.BaseModel):
     institute = models.ForeignKey(Institute, on_delete=models.CASCADE, related_name="branches")
     name = models.CharField(max_length=200, unique=True)
     email = models.EmailField()
-    mobile = models.CharField(max_length=25)
+    mobile = base_models.PhoneNumberField()
     address = models.TextField(null=True, blank=True)
     timezone = models.CharField(max_length=50, choices=timezone.TIMEZONE_CHOICES, default=settings.TIME_ZONE)
 
@@ -71,7 +71,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 class Profile(base_models.BaseModel):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     student_id = models.CharField(max_length=25, null=True, blank=True)
-    mobile = models.CharField(max_length=25, null=True, blank=True)
+    mobile = base_models.PhoneNumberField()
     address = models.TextField(null=True, blank=True)
     photo = models.URLField(null=True, blank=True)
     timezone = models.CharField(max_length=50, choices=timezone.TIMEZONE_CHOICES, default=settings.TIME_ZONE)
