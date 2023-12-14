@@ -1,7 +1,7 @@
 from django.db.models import Q, Value
 from django.db.models.functions import Concat
 
-from base.api.viewsets import BaseModelViewset
+from base.api.viewsets import ModelViewset
 from authentication.core.permissions import HasApiPermissions, IsSuperAdmin, IsInstituteAdmin, IsAdmins
 
 from .. import models
@@ -9,7 +9,7 @@ from . import serializers
 from . import minimal_serializers
 
 
-class InstituteViewset(BaseModelViewset):
+class InstituteViewset(ModelViewset):
     queryset = models.Institute.objects.all()
     serializer_class = serializers.InstituteSerializer
     minimal_serializer_class = minimal_serializers.InstituteMinimalSerializer
@@ -17,7 +17,7 @@ class InstituteViewset(BaseModelViewset):
     permission_classes = [IsSuperAdmin | IsInstituteAdmin]  # or operation
 
 
-class BranchViewset(BaseModelViewset):
+class BranchViewset(ModelViewset):
     queryset = models.Branch.objects.all()
     serializer_class = serializers.BranchSerializer
     minimal_serializer_class = minimal_serializers.BranchMinimalSerializer
@@ -30,7 +30,7 @@ class BranchViewset(BaseModelViewset):
         return [permission() for permission in permission_classes]
 
 
-class UserViewset(BaseModelViewset):
+class UserViewset(ModelViewset):
     queryset = models.User.objects.all()
     serializer_class = serializers.UserSerializer
     minimal_serializer_class = minimal_serializers.UserMinimalSerializer
@@ -59,7 +59,7 @@ class UserViewset(BaseModelViewset):
         return serializer.save(branch=self.request.user.branch)
 
 
-class ProfileViewset(BaseModelViewset):
+class ProfileViewset(ModelViewset):
     queryset = models.Profile.objects.all()
     serializer_class = serializers.ProfileSerializer
     minimal_serializer_class = minimal_serializers.ProfileMinimalSerializer

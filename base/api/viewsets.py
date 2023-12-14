@@ -3,7 +3,7 @@ from rest_framework import viewsets
 from ..mixins.utility import UtilityMixin
 
 
-class BaseModelViewset(UtilityMixin, viewsets.ModelViewSet):
+class ModelViewset(UtilityMixin, viewsets.ModelViewSet):
     minimal_serializer_class = None
 
     def get_queryset(self):

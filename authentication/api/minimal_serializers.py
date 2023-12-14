@@ -1,17 +1,16 @@
-from rest_framework import serializers
-from base.api.minimal_serializers import BaseModelMinimalSerializer
+from base.api.minimal_serializers import ModelMinimalSerializer
 
 from ..models import User, Institute, Branch, Profile
 
 
-class InstituteMinimalSerializer(BaseModelMinimalSerializer):
+class InstituteMinimalSerializer(ModelMinimalSerializer):
     class Meta:
         model = Institute
         fields = ["id", "name"]
         read_only_fields = fields
 
 
-class BranchMinimalSerializer(BaseModelMinimalSerializer):
+class BranchMinimalSerializer(ModelMinimalSerializer):
     class Meta:
         model = Branch
         fields = ["id", "name"]
@@ -27,7 +26,7 @@ class BranchMinimalSerializer(BaseModelMinimalSerializer):
         return response_data
 
 
-class UserMinimalSerializer(BaseModelMinimalSerializer):
+class UserMinimalSerializer(ModelMinimalSerializer):
     class Meta:
         model = User
         fields = ["id", "email"]
@@ -48,7 +47,7 @@ class UserMinimalSerializer(BaseModelMinimalSerializer):
         return response_data
 
 
-class ProfileMinimalSerializer(BaseModelMinimalSerializer):
+class ProfileMinimalSerializer(ModelMinimalSerializer):
     class Meta:
         model = Profile
         fields = ["id", "mobile", "student_id", "photo"]

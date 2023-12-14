@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class BaseQuerySet(models.QuerySet):
+class QuerySet(models.QuerySet):
     def alive(self):
         return self.filter(is_active=True)
 

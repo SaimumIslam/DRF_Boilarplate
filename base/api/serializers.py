@@ -3,7 +3,7 @@ from rest_framework import serializers
 from authentication.api.minimal_serializers import UserMinimalSerializer
 
 
-class BaseModelSerializer(serializers.ModelSerializer):
+class ModelSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth.models import ContentType
 
-from base.api.serializers import BaseModelSerializer
+from base.api.serializers import ModelSerializer
 
 from .minimal_serializers import InstituteMinimalSerializer, BranchMinimalSerializer
 from ..models import User, Institute, Branch, Profile, Group, Permission
@@ -9,13 +9,13 @@ from ..models import User, Institute, Branch, Profile, Group, Permission
 from ..services.user import UserService
 
 
-class InstituteSerializer(BaseModelSerializer):
+class InstituteSerializer(ModelSerializer):
     class Meta:
         model = Institute
         fields = ["id", "name", "address", "email", "mobile"]
 
 
-class BranchSerializer(BaseModelSerializer):
+class BranchSerializer(ModelSerializer):
     class Meta:
         model = Branch
         fields = ["id", "name", "email", "mobile", "address", "timezone", "institute"]
@@ -30,7 +30,7 @@ class BranchSerializer(BaseModelSerializer):
         return response_data
 
 
-class UserSerializer(BaseModelSerializer):
+class UserSerializer(ModelSerializer):
     user_service = UserService()
     branch = serializers.IntegerField(write_only=True)
 
@@ -53,7 +53,7 @@ class UserSerializer(BaseModelSerializer):
         return response_data
 
 
-class ProfileSerializer(BaseModelSerializer):
+class ProfileSerializer(ModelSerializer):
     class Meta:
         model = Profile
         fields = ["id", "mobile", "address", "student_id", "photo", "timezone", "last_activity_at", "user"]

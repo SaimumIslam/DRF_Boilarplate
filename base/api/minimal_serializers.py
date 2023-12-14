@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 
-class BaseModelMinimalSerializer(serializers.ModelSerializer):
+class ModelMinimalSerializer(serializers.ModelSerializer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
