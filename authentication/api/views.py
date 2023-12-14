@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 
-from base.core import exceptions
+from base.core.exceptions import Unprocessable
+from base.core.pagination import ViewLimitOffsetPagination
 
 from ..api.serializers import UserSerializer, ContentTypeSerializer, GroupSerializer, PermissionSerializer
 from ..api.serializers import LoginSerializer, UserGroupSerializer, UserPermissionSerializer, GroupPermissionSerializer
@@ -20,8 +21,6 @@ from ..models import Token, ContentType
 @authentication_classes([])
 @permission_classes([AllowAny])
 def login(request):
-    user_agent = request.META.get('HTTP_USER_AGENT', '')
-
     serializer = LoginSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
 
@@ -29,6 +28,7 @@ def login(request):
     if not user:
         return Response({'detail': 'Invalid Credentials'}, status=status.HTTP_404_NOT_FOUND)
 
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
     token, _ = Token.objects.get_or_create(user=user, device_info=user_agent)
 
     response_data = UserSerializer(user).data
@@ -59,9 +59,11 @@ def list_content_types(request):
     if query_params.get("model"):
         filters["model"] = query_params["model"]
 
-    content_types = ContentType.objects.filter(**filters).all()
-    serializer_data = ContentTypeSerializer(content_types, many=True).data
-    return Response(status=status.HTTP_200_OK, data=serializer_data)
+    queryset = ContentType.objects.filter(**filters)
+
+    return ViewLimitOffsetPagination.get_paginated_response(request=request,
+                                                            queryset=queryset,
+                                                            serializer=ContentTypeSerializer)
 
 
 @api_view(["GET"])
@@ -70,12 +72,6 @@ def list_groups(request):
     group_service = GroupService()
     query_params = request.query_params
 
-    filters = {}
-    if query_params.get("name"):
-        filters["name"] = query_params["name"]
-
-    groups = group_service.filter(**filters)
-
     detail_fields = query_params.get("detail_fields", "")
     detail_fields = [field.strip() for field in detail_fields.split(",")]
 
@@ -84,8 +80,16 @@ def list_groups(request):
         "detail_fields": detail_fields
     }
 
-    serializer_data = GroupSerializer(groups, many=True, context=serializer_context).data
-    return Response(status=status.HTTP_200_OK, data=serializer_data)
+    filters = {}
+    if query_params.get("name"):
+        filters["name"] = query_params["name"]
+
+    queryset = group_service.filter(**filters)
+
+    return ViewLimitOffsetPagination.get_paginated_response(request=request,
+                                                            queryset=queryset,
+                                                            context=serializer_context,
+                                                            serializer=GroupSerializer)
 
 
 @api_view(["GET"])
@@ -94,15 +98,6 @@ def list_permissions(request):
     permission_service = PermissionService()
     query_params = request.query_params
 
-    filters = {}
-    if query_params.get("codename"):
-        filters["codename"] = query_params["codename"]
-
-    if query_params.get("content_type"):
-        filters["content_type"] = query_params["content_type"]
-
-    permissions = permission_service.filter(**filters)
-
     detail_fields = query_params.get("detail_fields", "")
     detail_fields = [field.strip() for field in detail_fields.split(",")]
 
@@ -111,8 +106,19 @@ def list_permissions(request):
         "detail_fields": detail_fields
     }
 
-    serializer_data = PermissionSerializer(permissions, many=True, context=serializer_context).data
-    return Response(status=status.HTTP_200_OK, data=serializer_data)
+    filters = {}
+    if query_params.get("codename"):
+        filters["codename"] = query_params["codename"]
+
+    if query_params.get("content_type"):
+        filters["content_type"] = query_params["content_type"]
+
+    queryset = permission_service.filter(**filters)
+
+    return ViewLimitOffsetPagination.get_paginated_response(request=request,
+                                                            queryset=queryset,
+                                                            context=serializer_context,
+                                                            serializer=PermissionSerializer)
 
 
 class UserPermissionAPIView(APIView):
@@ -129,12 +135,12 @@ class UserPermissionAPIView(APIView):
     def get(self, request, **kwargs):
         user = request.query_params.get("user", "")
         if not user:
-            raise exceptions.Unprocessable("Please provide user as query params")
+            raise Unprocessable("Please provide user as query params")
 
         permissions = self.permission_service.filter(user=user)
-
-        serializer_data = PermissionSerializer(permissions, many=True).data
-        return Response(status=status.HTTP_200_OK, data=serializer_data)
+        return ViewLimitOffsetPagination.get_paginated_response(request=request,
+                                                                queryset=permissions,
+                                                                serializer=PermissionSerializer)
 
     def post(self, request, **kwargs):
         user_id = request.data.get("user")
@@ -171,12 +177,12 @@ class UserGroupAPIView(APIView):
     def get(self, request, **kwargs):
         user = request.query_params.get("user", "")
         if not user:
-            raise exceptions.Unprocessable("Please provide user as query params")
+            raise Unprocessable("Please provide user as query params")
 
         groups = self.group_service.filter(user=user)
-
-        serializer_data = GroupSerializer(groups, many=True).data
-        return Response(status=status.HTTP_200_OK, data=serializer_data)
+        return ViewLimitOffsetPagination.get_paginated_response(request=request,
+                                                                queryset=groups,
+                                                                serializer=GroupSerializer)
 
     def post(self, request, **kwargs):
         user_id = request.data.get("user")
@@ -214,12 +220,13 @@ class GroupPermissionAPIView(APIView):
     def get(self, request, **kwargs):
         group = request.query_params.get("group", "")
         if not group:
-            raise exceptions.Unprocessable("Please provide group as query params")
+            raise Unprocessable("Please provide group as query params")
 
         permissions = self.permission_service.get_group_permissions_by_group(group)
 
-        serializer_data = PermissionSerializer(permissions, many=True).data
-        return Response(status=status.HTTP_200_OK, data=serializer_data)
+        return ViewLimitOffsetPagination.get_paginated_response(request=request,
+                                                                queryset=permissions,
+                                                                serializer=PermissionSerializer)
 
     def post(self, request, **kwargs):
         group_id = request.data.get("group")

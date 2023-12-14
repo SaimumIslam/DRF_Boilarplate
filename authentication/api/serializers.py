@@ -32,6 +32,7 @@ class BranchSerializer(BaseModelSerializer):
 
 class UserSerializer(BaseModelSerializer):
     user_service = UserService()
+    branch = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = User

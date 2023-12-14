@@ -10,7 +10,7 @@ from . import minimal_serializers
 
 
 class InstituteViewset(BaseModelViewset):
-    queryset = models.Institute.objects.filter()
+    queryset = models.Institute.objects.all()
     serializer_class = serializers.InstituteSerializer
     minimal_serializer_class = minimal_serializers.InstituteMinimalSerializer
 
@@ -18,7 +18,7 @@ class InstituteViewset(BaseModelViewset):
 
 
 class BranchViewset(BaseModelViewset):
-    queryset = models.Branch.objects.filter()
+    queryset = models.Branch.objects.all()
     serializer_class = serializers.BranchSerializer
     minimal_serializer_class = minimal_serializers.BranchMinimalSerializer
 
@@ -31,7 +31,7 @@ class BranchViewset(BaseModelViewset):
 
 
 class UserViewset(BaseModelViewset):
-    queryset = models.User.objects.filter()
+    queryset = models.User.objects.all()
     serializer_class = serializers.UserSerializer
     minimal_serializer_class = minimal_serializers.UserMinimalSerializer
 
