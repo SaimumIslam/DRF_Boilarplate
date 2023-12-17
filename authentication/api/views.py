@@ -6,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 
+from drf_spectacular.utils import extend_schema
+
 from base.core.exceptions import Unprocessable
 from base.core.pagination import ViewLimitOffsetPagination
 
@@ -17,6 +19,7 @@ from ..services.user import UserService
 from ..models import Token, ContentType
 
 
+@extend_schema(request=LoginSerializer, responses=UserSerializer)
 @api_view(["POST"])
 @authentication_classes([])
 @permission_classes([AllowAny])
@@ -37,6 +40,7 @@ def login(request):
     return Response(data=response_data, status=status.HTTP_200_OK)
 
 
+@extend_schema(request=None, responses=None)
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def logout(request):
@@ -47,6 +51,7 @@ def logout(request):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+@extend_schema(responses=ContentTypeSerializer)
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def list_content_types(request):
@@ -66,6 +71,7 @@ def list_content_types(request):
                                                             serializer=ContentTypeSerializer)
 
 
+@extend_schema(responses=GroupSerializer)
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def list_groups(request):
@@ -92,6 +98,7 @@ def list_groups(request):
                                                             serializer=GroupSerializer)
 
 
+@extend_schema(responses=PermissionSerializer)
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def list_permissions(request):
@@ -132,6 +139,7 @@ class UserPermissionAPIView(APIView):
 
         return super().initial(request, *args, **kwargs)
 
+    @extend_schema(responses=PermissionSerializer)
     def get(self, request, **kwargs):
         user = request.query_params.get("user", "")
         if not user:
@@ -142,6 +150,7 @@ class UserPermissionAPIView(APIView):
                                                                 queryset=permissions,
                                                                 serializer=PermissionSerializer)
 
+    @extend_schema(request=UserPermissionSerializer, responses=None)
     def post(self, request, **kwargs):
         user_id = request.data.get("user")
         permission_id = request.data.get("permission")
@@ -153,6 +162,7 @@ class UserPermissionAPIView(APIView):
         # uncertainty and not returning anything that's why did not use 201
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @extend_schema(request=UserPermissionSerializer, responses=None)
     def delete(self, request, **kwargs):
         user_id = request.data.get("user")
         permission_id = request.data.get("permission")
@@ -174,6 +184,7 @@ class UserGroupAPIView(APIView):
 
         return super().initial(request, *args, **kwargs)
 
+    @extend_schema(responses=GroupSerializer)
     def get(self, request, **kwargs):
         user = request.query_params.get("user", "")
         if not user:
@@ -184,6 +195,7 @@ class UserGroupAPIView(APIView):
                                                                 queryset=groups,
                                                                 serializer=GroupSerializer)
 
+    @extend_schema(request=UserGroupSerializer, responses=None)
     def post(self, request, **kwargs):
         user_id = request.data.get("user")
         group_id = request.data.get("group")
@@ -195,6 +207,7 @@ class UserGroupAPIView(APIView):
         # uncertainty and not returning anything that's why did not use 201
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @extend_schema(request=UserGroupSerializer, responses=None)
     def delete(self, request, **kwargs):
         user_id = request.data.get("user")
         group_id = request.data.get("group")
@@ -217,6 +230,7 @@ class GroupPermissionAPIView(APIView):
 
         return super().initial(request, *args, **kwargs)
 
+    @extend_schema(request=PermissionSerializer, responses=None)
     def get(self, request, **kwargs):
         group = request.query_params.get("group", "")
         if not group:
@@ -228,6 +242,7 @@ class GroupPermissionAPIView(APIView):
                                                                 queryset=permissions,
                                                                 serializer=PermissionSerializer)
 
+    @extend_schema(request=GroupPermissionSerializer, responses=None)
     def post(self, request, **kwargs):
         group_id = request.data.get("group")
         permission_id = request.data.get("permission")
@@ -239,6 +254,7 @@ class GroupPermissionAPIView(APIView):
         # uncertainty and not returning anything that's why did not use 201
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+    @extend_schema(request=GroupPermissionSerializer, responses=None)
     def delete(self, request, **kwargs):
         group_id = request.data.get("group")
         permission_id = request.data.get("permission")

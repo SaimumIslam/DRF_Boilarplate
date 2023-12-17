@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 
-from ..mixins.utility import UtilityMixin
+from ..core.viewset import UtilityMixin
 
 
 class ModelViewset(UtilityMixin, viewsets.ModelViewSet):

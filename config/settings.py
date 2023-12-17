@@ -34,6 +34,7 @@ ALLOWED_HOSTS = []
 REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
     'EXCEPTION_HANDLER': 'base.core.utils.custom_exception_handler',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PARSER_CLASSES': ['rest_framework.parsers.JSONParser'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     "DEFAULT_PERMISSION_CLASSES": ['authentication.core.permissions.IsAdminsOrReadOnly'],
@@ -43,7 +44,7 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '50/hour',
+        'anon': '100/hour',
         'user': '50/minute'
     }
 }
@@ -56,6 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_spectacular',
 
     'authentication'
 ]
@@ -68,8 +70,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    # 'base.middleware.last_activity.LastActivityMiddleware',
-    'base.middleware.request_logger.RequestLoggerMiddleware'
+    # 'base.middlewares.last_activity.LastActivityMiddleware',
+    'base.middlewares.request_logger.RequestLoggerMiddleware'
 
 ]
 
@@ -162,3 +164,11 @@ CELERY_RESULT_BACKEND = f'redis://{env("REDIS_PORT")}:{env("REDIS_PORT")}'
 CELERY_ACCEPT_CONTENT = ['application/json']
 
 CLIENT_HOST = env("CLIENT_HOST")
+
+# swagger drf-spectacular
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Drf boilerplate',
+    'DESCRIPTION': 'Api documentation',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SERVE_PUBLIC': DEBUG,
+}

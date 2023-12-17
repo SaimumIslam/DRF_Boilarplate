@@ -1,4 +1,5 @@
 # DRF_Boilarplate
+
 My preferred folder structure
 
 - api
@@ -25,3 +26,9 @@ override django configue and settings
 
 ### config
 default app and settings
+
+# Developer Instructions
+
+# Packages
+
+@extend_schema: only to add swagger.
