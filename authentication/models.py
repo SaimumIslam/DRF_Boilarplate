@@ -10,7 +10,7 @@ from .utils import role, timezone
 from .core.managers import UserManager, TokenManager
 
 
-class Institute(base_models.BaseModel):
+class Institute(base_models.Model):
     name = models.CharField(max_length=200, unique=True)
     email = models.EmailField()
     mobile = base_models.PhoneNumberField()
@@ -20,7 +20,7 @@ class Institute(base_models.BaseModel):
         return self.name
 
 
-class Branch(base_models.BaseModel):
+class Branch(base_models.Model):
     institute = models.ForeignKey(Institute, on_delete=models.CASCADE, related_name="branches")
     name = models.CharField(max_length=200, unique=True)
     email = models.EmailField()
@@ -68,7 +68,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f'{self.email} {self.get_full_name()}'
 
 
-class Profile(base_models.BaseModel):
+class Profile(base_models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
     student_id = models.CharField(max_length=25, null=True, blank=True)
     mobile = base_models.PhoneNumberField()
@@ -106,5 +106,10 @@ class Token(models.Model):
     def __str__(self):
         return f' {self.key} {self.user.email}'
 
-# user_agent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36"
-# no_spaces_string = user_agent.replace(" ", "")
+
+class Module(base_models.Model):
+    name = models.CharField(max_length=40, unique=True)
+    users = models.ManyToManyField(User, related_name="modules")
+
+    def __str__(self):
+        return f'{self.name}'
