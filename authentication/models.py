@@ -2,12 +2,35 @@ import os
 import binascii
 from django.db import models
 from django.conf import settings
-from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, ContentType, Permission, Group
+from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
+from django.contrib.auth.models import ContentType, Permission, Group  # used in services
 
 from base import models as base_models
 
 from .utils import role, timezone
+from .core.model import RestrictionsMixin
 from .core.managers import UserManager, TokenManager
+
+
+class Token(models.Model):
+    key = models.CharField(max_length=40, primary_key=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    device_info = models.CharField(max_length=50, null=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s")
+
+    objects = TokenManager()
+
+    def save(self, *args, **kwargs):
+        if not self.key:
+            self.key = self.generate_key()
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def generate_key(cls):
+        return binascii.hexlify(os.urandom(20)).decode()
+
+    def __str__(self):
+        return f' {self.key} {self.user.email}'
 
 
 class Institute(base_models.Model):
@@ -37,7 +60,7 @@ class Branch(base_models.Model):
         return "{} : {}".format(self.institute.name, self.name)
 
 
-class User(AbstractBaseUser, PermissionsMixin):
+class User(AbstractBaseUser, PermissionsMixin, RestrictionsMixin):
     email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=150, blank=True)
     last_name = models.CharField(max_length=150, blank=True)
@@ -86,30 +109,9 @@ class Profile(base_models.Model):
         return f'{self.user.get_full_name()}'
 
 
-class Token(models.Model):
-    key = models.CharField(max_length=40, primary_key=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    device_info = models.CharField(max_length=50, null=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="%(app_label)s_%(class)s")
-
-    objects = TokenManager()
-
-    def save(self, *args, **kwargs):
-        if not self.key:
-            self.key = self.generate_key()
-        return super().save(*args, **kwargs)
-
-    @classmethod
-    def generate_key(cls):
-        return binascii.hexlify(os.urandom(20)).decode()
-
-    def __str__(self):
-        return f' {self.key} {self.user.email}'
-
-
-class Module(base_models.Model):
+class Family(base_models.Model):
     name = models.CharField(max_length=40, unique=True)
-    users = models.ManyToManyField(User, related_name="modules")
+    users = models.ManyToManyField(User, related_name="families")
 
     def __str__(self):
         return f'{self.name}'

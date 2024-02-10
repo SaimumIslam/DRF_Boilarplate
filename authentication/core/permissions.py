@@ -1,7 +1,9 @@
 from rest_framework import permissions
 
-from ..utils.role import ADMIN_ROLES, EMPLOYEE_ROLES
 from ..services.permission import PermissionService
+from ..services.user import UserService
+
+from ..utils.role import ADMIN_ROLES, EMPLOYEE_ROLES
 from ..utils.decorators import default_permission
 
 
@@ -90,7 +92,9 @@ class IsAdminOrAuthorOrReadOnly(permissions.BasePermission):
 
 
 class HasApiPermissions(permissions.BasePermission):
+    # This will only work in viewset
     permission_service = PermissionService()
+    user_service = UserService()
 
     code_name_map = {
         'GET': 'view',
@@ -122,8 +126,26 @@ class HasApiPermissions(permissions.BasePermission):
 
         queryset = self._queryset(view)
         codename = self._get_permission_codename(request.method, queryset.model)
+        permission_id = self.permission_service.get_id_by_attr(codename=codename)
 
-        has_permission = self.permission_service.has_all_including_group_permissions_by_user__codename(request.user,
-                                                                                                       codename)
+        # Check restrictions
+        has_user_restriction = request.user.user_restrictions.filter(pk=permission_id).exists()
+        if has_user_restriction:
+            return False
 
-        return has_permission
+        has_group_restriction = request.user.groups.filter(restrictions__restriction=permission_id).exists()
+        if has_group_restriction:
+            return False
+
+        # Check permissions
+        has_user_permission = request.user.user_permissions.filter(pk=permission_id).exists()
+        if has_user_permission:
+            return True
+
+        has_group_permission = request.user.groups.filter(permissions__id=permission_id).exists()
+        if has_group_permission:
+            return True
+
+        # has_permission = self.permission_service.has_api_permission_by_user__codename(request.user, codename)
+
+        return False

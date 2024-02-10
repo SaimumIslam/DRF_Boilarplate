@@ -21,6 +21,12 @@ class UserService(BaseService):
     def remove_permission_by_permission__user_id(self, permission, user_id):
         self.repository.remove_permission_by_permission__user_id(permission, user_id)
 
+    def add_restriction_by_restriction__user_id(self, permission, user_id):
+        self.repository.add_restriction_by_restriction__user_id(permission, user_id)
+
+    def remove_restriction_by_restriction__user_id(self, permission, user_id):
+        self.repository.remove_restriction_by_restriction__user_id(permission, user_id)
+
     def add_group_by_group__user_id(self, group, user_id):
         self.repository.add_group_by_group__user_id(group, user_id)
 

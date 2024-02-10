@@ -1,3 +1,5 @@
+from rest_framework import viewsets
+
 from django.db.models import Q, Value
 from django.db.models.functions import Concat
 
@@ -24,7 +26,7 @@ class BranchViewset(ModelViewset):
 
     def get_permissions(self):
         if self.action == 'list' or self.action == 'retrieve':
-            permission_classes = [IsAdmins]
+            permission_classes = [HasApiPermissions]
         else:
             permission_classes = [IsAdmins, HasApiPermissions]  # and operation
         return [permission() for permission in permission_classes]
@@ -91,3 +93,10 @@ class ProfileViewset(ModelViewset):
             .filter(or_filters, **filters)
 
         return queryset
+
+
+class GroupViewset(viewsets.ModelViewSet):
+    queryset = models.Group.objects.all()
+    serializer_class = serializers.GroupSerializer
+
+    permission_classes = [IsSuperAdmin | IsInstituteAdmin]  # or operation

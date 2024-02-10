@@ -24,6 +24,16 @@ class UserRepository(BaseRepository):
         if instance:
             instance.user_permissions.remove(permission)
 
+    def add_restriction_by_restriction__user_id(self, restriction, user_id):
+        instance = self.get_by_attr(pk=user_id)
+        if instance:
+            instance.user_restrictions.add(restriction)
+
+    def remove_restriction_by_restriction__user_id(self, restriction, user_id):
+        instance = self.get_by_attr(pk=user_id)
+        if instance:
+            instance.user_restrictions.remove(restriction)
+
     def add_group_by_group__user_id(self, group, user_id):
         instance = self.get_by_attr(pk=user_id)
         if instance:

@@ -1,5 +1,3 @@
-
-
 class BaseRepository:
     def __init__(self, model_class):
         self.model = model_class
@@ -11,6 +9,9 @@ class BaseRepository:
     def get_all_ids(self):
         return list(self.queryset.values_list("id", flat=True))
 
+    def get_all_by_ids(self, ids):
+        return self.queryset.filter(id__in=ids)
+
     def get_by_id(self, pk):
         try:
             return self.model.objects.get(pk=pk)
@@ -19,6 +20,10 @@ class BaseRepository:
 
     def get_by_attr(self, **filters):
         return self.queryset.filter(**filters).first()
+
+    def get_id_by_attr(self, **filters):
+        instance = self.queryset.filter(**filters).first()
+        return getattr(instance, 'id', None)
 
     def filter(self, **filters):
         return self.queryset.filter(**filters)

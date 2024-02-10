@@ -11,8 +11,11 @@ from drf_spectacular.utils import extend_schema
 from base.core.exceptions import Unprocessable
 from base.core.pagination import ViewLimitOffsetPagination
 
+from authentication.core.permissions import HasApiPermissions
+
 from ..api.serializers import UserSerializer, ContentTypeSerializer, GroupSerializer, PermissionSerializer
 from ..api.serializers import LoginSerializer, UserGroupSerializer, UserPermissionSerializer, GroupPermissionSerializer
+from ..api.serializers import GroupRestrictionSerializer, UserRestrictionSerializer
 from ..services.permission import PermissionService
 from ..services.group import GroupService
 from ..services.user import UserService
@@ -71,33 +74,6 @@ def list_content_types(request):
                                                             serializer=ContentTypeSerializer)
 
 
-@extend_schema(responses=GroupSerializer)
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def list_groups(request):
-    group_service = GroupService()
-    query_params = request.query_params
-
-    detail_fields = query_params.get("detail_fields", "")
-    detail_fields = [field.strip() for field in detail_fields.split(",")]
-
-    serializer_context = {
-        "requested_user": getattr(request, 'user'),
-        "detail_fields": detail_fields
-    }
-
-    filters = {}
-    if query_params.get("name"):
-        filters["name"] = query_params["name"]
-
-    queryset = group_service.filter(**filters)
-
-    return ViewLimitOffsetPagination.get_paginated_response(request=request,
-                                                            queryset=queryset,
-                                                            context=serializer_context,
-                                                            serializer=GroupSerializer)
-
-
 @extend_schema(responses=PermissionSerializer)
 @api_view(["GET"])
 @permission_classes([IsAuthenticated])
@@ -120,7 +96,7 @@ def list_permissions(request):
     if query_params.get("content_type"):
         filters["content_type"] = query_params["content_type"]
 
-    queryset = permission_service.filter(**filters)
+    queryset = permission_service.filter(**filters).order_by('id')
 
     return ViewLimitOffsetPagination.get_paginated_response(request=request,
                                                             queryset=queryset,
@@ -232,12 +208,13 @@ class GroupPermissionAPIView(APIView):
 
     @extend_schema(request=PermissionSerializer, responses=None)
     def get(self, request, **kwargs):
-        group = request.query_params.get("group", "")
+        group_id = request.query_params.get("group", "")
+
+        group = self.group_service.get_by_id(group_id)
         if not group:
-            raise Unprocessable("Please provide group as query params")
+            raise Unprocessable("Please provide valid group as query params")
 
-        permissions = self.permission_service.get_group_permissions_by_group(group)
-
+        permissions = group.permissions.all()
         return ViewLimitOffsetPagination.get_paginated_response(request=request,
                                                                 queryset=permissions,
                                                                 serializer=PermissionSerializer)
@@ -263,4 +240,98 @@ class GroupPermissionAPIView(APIView):
         if permission:
             self.group_service.remove_permission_by_permission__group_id(permission, group_id)
 
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class GroupRestrictionAPIView(APIView):
+    permission_service = PermissionService()
+    group_service = GroupService()
+
+    def initial(self, request, *args, **kwargs):
+        if request.method == "POST" or request.method == "DELETE":
+            serializer = GroupRestrictionSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+        return super().initial(request, *args, **kwargs)
+
+    @extend_schema(request=PermissionSerializer, responses=None)
+    def get(self, request, **kwargs):
+        group_id = request.query_params.get("group", "")
+
+        group = self.group_service.get_by_id(group_id)
+        if not group:
+            raise Unprocessable("Please provide valid group as query params")
+
+        restriction_ids = group.restrictions.values_list("restriction", flat=True)
+        restrictions = self.permission_service.get_all_by_ids(restriction_ids)
+        return ViewLimitOffsetPagination.get_paginated_response(request=request,
+                                                                queryset=restrictions,
+                                                                serializer=PermissionSerializer)
+
+    @extend_schema(request=GroupRestrictionSerializer, responses=None)
+    def post(self, request, **kwargs):
+        group_id = request.data.get("group")
+        restriction_id = request.data.get("restriction")
+
+        restriction = self.permission_service.get_by_id(restriction_id)
+        if restriction:
+            self.group_service.add_restriction_by_restriction__group_id(restriction, group_id)
+
+        # uncertainty and not returning anything that's why did not use 201
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @extend_schema(request=GroupRestrictionSerializer, responses=None)
+    def delete(self, request, **kwargs):
+        group_id = request.data.get("group")
+        restriction_id = request.data.get("restriction")
+
+        restriction = self.permission_service.get_by_id(restriction_id)
+        if restriction:
+            self.group_service.remove_restriction_by_restriction__group_id(restriction, group_id)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserRestrictionAPIView(APIView):
+    user_service = UserService()
+    permission_service = PermissionService()
+
+    def initial(self, request, *args, **kwargs):
+        if request.method == "POST" or request.method == "DELETE":
+            serializer = UserRestrictionSerializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+
+        return super().initial(request, *args, **kwargs)
+
+    @extend_schema(responses=PermissionSerializer)
+    def get(self, request, **kwargs):
+        user = request.query_params.get("user", "")
+        if not user:
+            raise Unprocessable("Please provide user as query params")
+
+        restrictions = self.permission_service.filter(r_user=user)
+        return ViewLimitOffsetPagination.get_paginated_response(request=request,
+                                                                queryset=restrictions,
+                                                                serializer=PermissionSerializer)
+
+    @extend_schema(request=UserRestrictionSerializer, responses=None)
+    def post(self, request, **kwargs):
+        user_id = request.data.get("user")
+        restriction_id = request.data.get("restriction")
+
+        restriction = self.permission_service.get_by_id(restriction_id)
+        if restriction:
+            self.user_service.add_restriction_by_restriction__user_id(restriction, user_id)
+
+        # uncertainty and not returning anything that's why did not use 201
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @extend_schema(request=UserRestrictionSerializer, responses=None)
+    def delete(self, request, **kwargs):
+        user_id = request.data.get("user")
+        restriction_id = request.data.get("restriction")
+
+        restriction = self.permission_service.get_by_id(restriction_id)
+        if restriction:
+            self.user_service.remove_restriction_by_restriction__user_id(restriction, user_id)
         return Response(status=status.HTTP_204_NO_CONTENT)

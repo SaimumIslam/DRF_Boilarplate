@@ -124,3 +124,13 @@ class UserGroupSerializer(serializers.Serializer):
 class GroupPermissionSerializer(serializers.Serializer):
     group = serializers.IntegerField()
     permission = serializers.IntegerField()
+
+
+class GroupRestrictionSerializer(serializers.Serializer):
+    group = serializers.IntegerField()
+    restriction = serializers.IntegerField()
+
+class UserRestrictionSerializer(serializers.Serializer):
+    user = serializers.IntegerField()
+    restriction = serializers.IntegerField()
+

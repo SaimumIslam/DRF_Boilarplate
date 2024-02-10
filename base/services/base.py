@@ -17,6 +17,15 @@ class BaseService:
     def get_by_id(self, pk):
         return self.repository.get_by_id(pk)
 
+    def get_all_by_ids(self, pk):
+        return self.repository.get_all_by_ids(pk)
+
+    def get_id_by_attr(self, **filters):
+        return self.repository.get_id_by_attr(**filters)
+
+    def get_by_attr(self, **filters):
+        return self.repository.get_by_attr(**filters)
+
     def filter(self, **filters):
         return self.repository.filter(**filters)
 

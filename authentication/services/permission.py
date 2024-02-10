@@ -10,5 +10,11 @@ class PermissionService(BaseService):
     def get_group_permissions_by_group(self, group):
         return self.repository.get_group_permissions_by_group(group)
 
-    def has_all_including_group_permissions_by_user__codename(self, user, codename):
-        return self.repository.has_all_including_group_permissions_by_user__codename(user, codename)
+    def has_permissions_by_user__codename(self, user, codename):
+        return self.repository.has_permissions_by_user__codename(user, codename)
+
+    def has_restrictions_by_user__codename(self, user, codename):
+        return self.repository.has_restrictions_by_user__codename(user, codename)
+
+    def has_api_permission_by_user__codename(self, user, codename):
+        return self.repository.has_api_permission_by_user__codename(user, codename)

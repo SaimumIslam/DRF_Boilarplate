@@ -15,3 +15,9 @@ class GroupService(BaseService):
 
     def remove_permission_by_permission__group_id(self, permission, group_id):
         self.repository.remove_permission_by_permission__group_id(permission, group_id)
+
+    def add_restriction_by_restriction__group_id(self, permission, group_id):
+        self.repository.add_restriction_by_restriction__group_id(permission, group_id)
+
+    def remove_restriction_by_restriction__group_id(self, permission, group_id):
+        self.repository.remove_restriction_by_restriction__group_id(permission, group_id)

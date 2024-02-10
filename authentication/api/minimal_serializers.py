@@ -51,6 +51,7 @@ class ProfileMinimalSerializer(ModelMinimalSerializer):
     class Meta:
         model = Profile
         fields = ["id", "mobile", "student_id", "photo"]
+        read_only_fields = fields
 
     def to_representation(self, instance):
         response_data = super().to_representation(instance)
