@@ -5,8 +5,8 @@ from django.utils.translation import gettext_lazy as _
 
 
 class GroupRestriction(models.Model):
-    restriction = models.ForeignKey(Permission, on_delete=models.CASCADE, related_name="groups")
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="restrictions")
+    restriction = models.ForeignKey(Permission, on_delete=models.CASCADE, related_name="group_restrictions")
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name="group_restrictions")
 
     class Meta:
         db_table = "auth_group_restrictions"

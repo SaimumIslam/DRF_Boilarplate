@@ -262,7 +262,7 @@ class GroupRestrictionAPIView(APIView):
         if not group:
             raise Unprocessable("Please provide valid group as query params")
 
-        restriction_ids = group.restrictions.values_list("restriction", flat=True)
+        restriction_ids = group.group_restrictions.values_list("restriction", flat=True)
         restrictions = self.permission_service.get_all_by_ids(restriction_ids)
         return ViewLimitOffsetPagination.get_paginated_response(request=request,
                                                                 queryset=restrictions,

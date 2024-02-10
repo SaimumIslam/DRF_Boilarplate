@@ -133,7 +133,7 @@ class HasApiPermissions(permissions.BasePermission):
         if has_user_restriction:
             return False
 
-        has_group_restriction = request.user.groups.filter(restrictions__restriction=permission_id).exists()
+        has_group_restriction = request.user.groups.filter(group_restrictions__restriction=permission_id).exists()
         if has_group_restriction:
             return False
 

@@ -22,8 +22,7 @@ class GroupRepository(BaseRepository):
         return item.permissions.all()
 
     def get_item_restriction_ids(self, item):
-        # many to many restrictions
-        return item.restrictions.values("restriction", flat=True)
+        return item.group_restrictions.values("restriction", flat=True)
 
     def add_permission_by_permission__group_id(self, permission, group_id):
         instance = self.get_by_attr(pk=group_id)
@@ -38,9 +37,9 @@ class GroupRepository(BaseRepository):
     def add_restriction_by_restriction__group_id(self, restriction, group_id):
         instance = self.get_by_attr(pk=group_id)
         if instance:
-            instance.restrictions.create(restriction=restriction)
+            instance.group_restrictions.create(restriction=restriction)
 
     def remove_restriction_by_restriction__group_id(self, restriction, group_id):
         instance = self.get_by_attr(pk=group_id)
         if instance:
-            instance.restrictions.filter(restriction=restriction).delete()
+            instance.group_restrictions.filter(restriction=restriction).delete()
