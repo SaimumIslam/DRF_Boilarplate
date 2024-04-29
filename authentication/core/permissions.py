@@ -25,10 +25,10 @@ class IsBranchAdmin(permissions.BasePermission):
         return request.user.role == "BA"
 
 
-class IsStaffAdmin(permissions.BasePermission):
+class IsAuthority(permissions.BasePermission):
     @default_permission
     def has_permission(self, request, view):
-        return request.user.role == "SA"
+        return request.user.role == "AU"
 
 
 class IsTeacher(permissions.BasePermission):

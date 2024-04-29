@@ -37,9 +37,9 @@ We create this template using:
   - utils
 
 - repositories
-- services
-- helpers
-- utils
+- services: all service based on models
+- helpers: complex service classes.
+- utils: functions or static class
 - models
 - urls
 - admin

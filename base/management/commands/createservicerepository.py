@@ -3,10 +3,15 @@ Management utility to create service repository.
 """
 import os
 import sys
+import subprocess
 
 from django.core import exceptions
 from django.conf import settings
 from django.apps import apps
+
+from prompt_toolkit import prompt
+from prompt_toolkit.completion import WordCompleter
+
 from django.core.management.base import BaseCommand, CommandError
 
 
@@ -27,7 +32,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         try:
             while self.app_name is None:
-                app_name = self._get_input_data("app")
+                app_name = self._get_input_data("app", self.PROJECT_APPS)
                 if app_name in self.PROJECT_APPS:
                     self.app_name = app_name
                     self.APP_MODELS = self._get_app_models_by_app(app_name)
@@ -35,7 +40,7 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.ERROR(f'please give one of {",".join(self.PROJECT_APPS)}'))
 
             while self.model_name is None:
-                model_name = self._get_input_data("model")
+                model_name = self._get_input_data("model", self.APP_MODELS)
                 if model_name in self.APP_MODELS:
                     self.model_name = model_name
                 else:
@@ -56,6 +61,11 @@ class Command(BaseCommand):
                 self.stdout.write(
                     self.style.SUCCESS(f'Service and repository file created successfully at {self.app_name}'))
 
+                git_add = input("Want to add those file to git? Y or y to add: ")
+                if git_add.lower().strip() == "y":
+                    self._add_file_to_git(service_file_path)
+                    self._add_file_to_git(repository_file_path)
+
         except KeyboardInterrupt:
             self.stderr.write("\nOperation cancelled.")
             sys.exit(1)
@@ -64,15 +74,13 @@ class Command(BaseCommand):
         except NotRunningInTTYException:
             self.stdout.write(
                 "service repository creation skipped due to not running in a TTY. "
-                "You can run `manage.py createsuperuser` in your project "
-                "to create one manually."
-            )
+                "You can create manually in your project ")
 
-    def _get_input_data(self, category, default=""):
+    def _get_input_data(self, category, suggestions, default=""):
         """Override this method if you want to customize data inputs"""
+        completer = WordCompleter(suggestions)
+        raw_value = prompt(f"Please input {category} name :", completer=completer, complete_while_typing=True)
 
-        input_message = f"Please input {category} name :"
-        raw_value = input(input_message)
         if default and raw_value == "":
             raw_value = default
         return raw_value.strip()
@@ -145,6 +153,13 @@ class Command(BaseCommand):
         service_file_path = os.path.join(services_path, f'{base_file_name}.py')
 
         return service_file_path
+
+    def _add_file_to_git(self, file_path):
+        try:
+            subprocess.run(["git", "add", file_path], check=True)
+            self.stdout.write(self.style.SUCCESS(f"File '{file_path}' added to Git successfully."))
+        except subprocess.CalledProcessError as e:
+            self.stdout.write(self.style.ERROR(f"Failed to add {file_path} to Git staging."))
 
     def get_service_file_template(self):
         model_name_snake_case = self._get_base_file_name()
