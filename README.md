@@ -17,6 +17,7 @@ We create this template using:
 
 - constant variable/data: SNAKE_CASE
 - folder/file/variable/function: snake_case
+- always write view and api connected with swagger schema
 
 ## Instruction Tests Writing
 

@@ -21,6 +21,8 @@ from ..services.group import GroupService
 from ..services.user import UserService
 from ..models import Token, ContentType
 
+from ..utils.helper_func import get_client_ip, get_client_agent
+
 
 @extend_schema(request=LoginSerializer, responses=UserSerializer)
 @api_view(["POST"])
@@ -34,8 +36,10 @@ def login(request):
     if not user:
         return Response({'detail': 'Invalid Credentials'}, status=status.HTTP_404_NOT_FOUND)
 
-    user_agent = request.META.get('HTTP_USER_AGENT', '')
-    token, _ = Token.objects.get_or_create(user=user, device_info=user_agent)
+    user_agent = get_client_agent(request)
+    user_ip = get_client_ip(request)
+
+    token, _ = Token.objects.get_or_create(user=user, device_info=user_agent, device_ip=user_ip)
 
     response_data = UserSerializer(user).data
     response_data["token"] = token.key
